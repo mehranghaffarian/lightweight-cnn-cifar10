@@ -1,3 +1,9 @@
 data/
 models/__pycache__/
 __pycache__
+
+# Ignore all epoch checkpoints
+checkpoints/epoch_*.pth
+# Keep last and best
+!checkpoints/last.pth
+!checkpoints/best.pth

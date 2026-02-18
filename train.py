@@ -4,17 +4,9 @@ import torch.optim as optim
 import os
 
 from models.cnn import SmallResNet
-from dataset import get_dataloaders
+from dataset import *
 from utils.checkpoint import save_checkpoint, load_checkpoint
 from utils.plot_loss_epoch import plot_losses
-
-checkpoint_dir = "checkpoints"
-resume_path = "checkpoints/last.pth"
-
-start_epoch = 0
-train_losses = []
-val_losses = []
-best_val_loss = float("inf")
 
 
 def get_device():
@@ -68,9 +60,17 @@ def validate(model, loader, criterion, device):
     return total_loss / len(loader), total_acc / len(loader)
 
 def train():
+    checkpoint_dir = "checkpoints"
+    resume_path = "checkpoints/last.pth"
+
+    start_epoch = 0
+    train_losses = []
+    val_losses = []
+    best_val_loss = float("inf")
+
     device = get_device()
     
-    train_loader, val_loader, test_loader = get_dataloaders(batch_size=128)
+    train_loader, val_loader = get_train_dataloaders(batch_size=128)
     
     model = SmallResNet().to(device)
 
@@ -93,8 +93,8 @@ def train():
         start_epoch, train_losses, val_losses, best_val_loss = load_checkpoint(
             model, optimizer, resume_path, device
         )
-
-    num_epochs = 100
+    num_epochs=100
+    print("start epoch: ", start_epoch)
 
     for epoch in range(start_epoch, num_epochs):
         train_loss, train_acc = train_one_epoch(
@@ -133,10 +133,10 @@ def train():
             f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}"
         )
 
-    return model, test_loader
+    return model, train_losses, val_losses
 
 
 if __name__ == "__main__":
-    model, test_loader = train()
+    model, train_losses, val_losses = train()
     device = get_device()
     plot_losses(train_losses, val_losses)

@@ -5,8 +5,14 @@ def save_checkpoint(state, is_best, checkpoint_dir="checkpoints"):
     os.makedirs(checkpoint_dir, exist_ok=True)
 
     # Save last checkpoint
-    last_path = os.path.join(checkpoint_dir, f"epoch_{state.epoch:03d}.pth")
+    last_path = os.path.join(checkpoint_dir, f"last.pth")
     torch.save(state, last_path)
+
+    # Save epoch checkpoint
+    epoch = state["epoch"]
+    epoch_path = os.path.join(checkpoint_dir, f"epoch_{epoch:03d}.pth")
+    torch.save(state, epoch_path)
+
 
     # Save best model separately
     if is_best:

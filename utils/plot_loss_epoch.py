@@ -19,12 +19,12 @@ def plot_losses(train_losses, val_losses, save_path=None):
     plt.show()
     
 
-checkpoint = torch.load("checkpoints/last.pth", map_location="cpu")
-train_losses = checkpoint["train_losses"]
-val_losses = checkpoint["val_losses"]
+# checkpoint = torch.load("checkpoints/last.pth", map_location="cpu")
+# train_losses = checkpoint["train_losses"]
+# val_losses = checkpoint["val_losses"]
 
-plot_losses(
-    train_losses,
-    val_losses,
-    save_path="loss_curve.png"
-)
+# plot_losses(
+#     train_losses,
+#     val_losses,
+#     save_path="loss_curve.png"
+# )

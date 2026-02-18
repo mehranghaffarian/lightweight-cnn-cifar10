@@ -1,6 +1,6 @@
 import torch
 from models.cnn import SmallResNet
-from data import get_test_loader
+from dataset import *
 
 def accuracy(outputs, targets):
     _, preds = torch.max(outputs, dim=1)
@@ -20,21 +20,22 @@ def test(model, loader, device):
             outputs = model(images)
             total_acc += accuracy(outputs, labels)
 
-    print(f"Test Accuracy: {total_acc / len(loader):.4f}")
+    print(f"Test Accuracy: {100 * total_acc / len(loader):.2f} %")
 
 
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+if __name__ == "__main__":
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-epoch = int(input("Enter epoch number to evaluate: "))
+    epoch = int(input("Enter epoch number to evaluate: "))
 
-checkpoint_path = f"checkpoints/epoch_{epoch:03d}.pth"
-checkpoint = torch.load(checkpoint_path, map_location=device)
+    checkpoint_path = f"checkpoints/epoch_{epoch:03d}.pth"
+    checkpoint = torch.load(checkpoint_path, map_location=device)
 
-model = SmallResNet().to(device)
-model.load_state_dict(checkpoint["model_state"])
-model.eval()
+    model = SmallResNet().to(device)
+    model.load_state_dict(checkpoint["model_state"])
+    model.eval()
 
-test_loader = get_test_loader()
+    test_loader = get_test_dataloader()
 
-test(model, test_loader, device)
+    test(model, test_loader, device)

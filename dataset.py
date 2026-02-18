@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import DataLoader, Subset
 from torchvision import datasets, transforms
 
-def get_transforms():
+def get_train_transforms():
     train_transform = transforms.Compose([
         transforms.RandomCrop(32, padding=4),
         transforms.RandomHorizontalFlip(),
@@ -13,7 +13,10 @@ def get_transforms():
         )
     ])
 
-    test_transform = transforms.Compose([
+    return train_transform
+
+def get_test_transform():    
+    return transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize(
             mean=(0.4914, 0.4822, 0.4465),
@@ -21,11 +24,9 @@ def get_transforms():
         )
     ])
 
-    return train_transform, test_transform
 
-
-def get_datasets(data_dir="./data"):
-    train_transform, test_transform = get_transforms()
+def get_train_dataset(data_dir="./data"):
+    train_transform = get_train_transforms()
 
     full_train_dataset = datasets.CIFAR10(
         root=data_dir,
@@ -34,14 +35,17 @@ def get_datasets(data_dir="./data"):
         transform=train_transform
     )
 
-    test_dataset = datasets.CIFAR10(
+    return full_train_dataset
+
+def get_test_dataset(data_dir="./data"):
+    test_transform = get_test_transform()
+    
+    return datasets.CIFAR10(
         root=data_dir,
         train=False,
         download=True,
         transform=test_transform
     )
-
-    return full_train_dataset, test_dataset
 
 
 def split_train_validation(full_train_dataset):
@@ -58,7 +62,7 @@ def split_train_validation(full_train_dataset):
             root=full_train_dataset.root,
             train=True,
             download=False,
-            transform=get_transforms()[1]  # no augmentation
+            transform=get_test_transform()  # no augmentation
         ),
         val_indices
     )
@@ -66,8 +70,8 @@ def split_train_validation(full_train_dataset):
     return train_dataset, val_dataset
 
 
-def get_dataloaders(batch_size=128, num_workers=2):
-    full_train_dataset, test_dataset = get_datasets()
+def get_train_dataloaders(batch_size=128, num_workers=2):
+    full_train_dataset = get_train_dataset()
     train_dataset, val_dataset = split_train_validation(full_train_dataset)
 
     train_loader = DataLoader(
@@ -86,7 +90,12 @@ def get_dataloaders(batch_size=128, num_workers=2):
         pin_memory=torch.cuda.is_available()
     )
 
-    test_loader = DataLoader(
+    return train_loader, val_loader
+
+def get_test_dataloader(batch_size=128, num_workers=2):
+    test_dataset = get_test_dataset()
+    
+    return DataLoader(
         test_dataset,
         batch_size=batch_size,
         shuffle=False,
@@ -94,11 +103,10 @@ def get_dataloaders(batch_size=128, num_workers=2):
         pin_memory=torch.cuda.is_available()
     )
 
-    return train_loader, val_loader, test_loader
-
 
 if __name__ == "__main__":
-    train_loader, val_loader, test_loader = get_dataloaders()
+    train_loader, val_loader = get_train_dataloaders()
+    test_loader = get_test_dataloader()
 
     print(len(train_loader.dataset))  # 45000
     print(len(val_loader.dataset))    # 5000
