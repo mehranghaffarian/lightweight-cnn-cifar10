@@ -1,24 +1,32 @@
 import torch
 import os
+import re
 
 def save_checkpoint(state, is_best, checkpoint_dir="checkpoints"):
     os.makedirs(checkpoint_dir, exist_ok=True)
-
-    # Save last checkpoint
-    last_path = os.path.join(checkpoint_dir, f"last.pth")
-    torch.save(state, last_path)
 
     # Save epoch checkpoint
     epoch = state["epoch"]
     epoch_path = os.path.join(checkpoint_dir, f"epoch_{epoch:03d}.pth")
     torch.save(state, epoch_path)
 
+def get_latest_checkpoint(checkpoint_dir):
+    if not os.path.exists(checkpoint_dir):
+        return None
 
-    # Save best model separately
-    if is_best:
-        best_path = os.path.join(checkpoint_dir, "best.pth")
-        torch.save(state, best_path)
+    pattern = re.compile(r"epoch_(\d+)\.pth")
+    max_epoch = -1
+    latest_path = None
 
+    for filename in os.listdir(checkpoint_dir):
+        match = pattern.match(filename)
+        if match:
+            epoch_num = int(match.group(1))
+            if epoch_num > max_epoch:
+                max_epoch = epoch_num
+                latest_path = os.path.join(checkpoint_dir, filename)
+
+    return latest_path
 
 def load_checkpoint(model, optimizer, checkpoint_path, device):
     checkpoint = torch.load(checkpoint_path, map_location=device)

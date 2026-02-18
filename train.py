@@ -5,7 +5,7 @@ import os
 
 from models.cnn import SmallResNet
 from dataset import *
-from utils.checkpoint import save_checkpoint, load_checkpoint
+from utils.checkpoint import save_checkpoint, load_checkpoint, get_latest_checkpoint
 from utils.plot_loss_epoch import plot_losses
 
 
@@ -60,14 +60,6 @@ def validate(model, loader, criterion, device):
     return total_loss / len(loader), total_acc / len(loader)
 
 def train():
-    checkpoint_dir = "checkpoints"
-    resume_path = "checkpoints/last.pth"
-
-    start_epoch = 0
-    train_losses = []
-    val_losses = []
-    best_val_loss = float("inf")
-
     device = get_device()
     
     train_loader, val_loader = get_train_dataloaders(batch_size=128)
@@ -88,11 +80,20 @@ def train():
         gamma=0.1
     )
 
-    if os.path.exists(resume_path):
+    checkpoint_dir = "checkpoints"
+    resume_path = get_latest_checkpoint(checkpoint_dir)
+    
+    start_epoch = 0
+    train_losses = []
+    val_losses = []
+    best_val_loss = float("inf")
+    
+    if resume_path is not None:
         print("Resuming training from checkpoint...")
         start_epoch, train_losses, val_losses, best_val_loss = load_checkpoint(
             model, optimizer, resume_path, device
         )
+        
     num_epochs=100
     print("start epoch: ", start_epoch)
 
