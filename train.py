@@ -2,12 +2,14 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import os
+import logging
 
 from models.cnn import SmallResNet
 from dataset import *
 from utils.checkpoint import save_checkpoint, load_checkpoint, get_latest_checkpoint
 from utils.plot_loss_epoch import plot_losses
 
+logger = logging.getLogger(__name__)
 
 def get_device():
     return torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -89,13 +91,13 @@ def train():
     best_val_loss = float("inf")
     
     if resume_path is not None:
-        print("Resuming training from checkpoint...")
+        logger.info("Resuming training from checkpoint...")
         start_epoch, train_losses, val_losses, best_val_loss = load_checkpoint(
             model, optimizer, resume_path, device
         )
         
     num_epochs=100
-    print("start epoch: ", start_epoch)
+    logger.info("start epoch: ", start_epoch)
 
     for epoch in range(start_epoch, num_epochs):
         train_loss, train_acc = train_one_epoch(
@@ -128,7 +130,7 @@ def train():
             checkpoint_dir=checkpoint_dir
         )
 
-        print(
+        logger.info(
             f"Epoch [{epoch+1}/{num_epochs}] | "
             f"Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.4f} | "
             f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}"

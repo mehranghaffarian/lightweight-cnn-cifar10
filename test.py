@@ -2,7 +2,7 @@ import torch
 from models.cnn import SmallResNet
 from dataset import *
 import matplotlib.pyplot as plt
-import torchvision
+import logging
 
 def accuracy(outputs, targets):
     _, preds = torch.max(outputs, dim=1)
@@ -22,7 +22,7 @@ def test(model, loader, device):
             outputs = model(images)
             total_acc += accuracy(outputs, labels)
 
-    print(f"Test Accuracy: {100 * total_acc / len(loader):.2f} %")
+    logging.getLogger(__name__).info(f"Test Accuracy: {100 * total_acc / len(loader):.2f} %")
 
 
 def show_predictions(model, test_loader, device, num_images=8):
