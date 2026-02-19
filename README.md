@@ -113,7 +113,7 @@ This approach provides transparent and interpretable model selection.
 
 ## ▶️ How to Run
 
-### Train the model
+### Train and Test the model
 ```bash
 python train.py
 python test.py
