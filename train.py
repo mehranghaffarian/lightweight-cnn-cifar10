@@ -87,12 +87,13 @@ def train():
     
     start_epoch = 0
     train_losses = []
+    train_accs = []
     val_losses = []
-    best_val_loss = float("inf")
+    val_accs = []
     
     if resume_path is not None:
         logger.info("Resuming training from checkpoint...")
-        start_epoch, train_losses, val_losses, best_val_loss = load_checkpoint(
+        start_epoch, train_losses, train_accs, val_losses, val_accs = load_checkpoint(
             model, optimizer, resume_path, device
         )
         
@@ -110,12 +111,10 @@ def train():
         
         scheduler.step()
 
-        is_best = val_loss < best_val_loss
-        if is_best:
-            best_val_loss = val_loss
-
         train_losses.append(train_loss)
+        train_accs.append(train_acc)
         val_losses.append(val_loss)
+        val_accs.append(val_acc)
 
         save_checkpoint(
             state={
@@ -123,10 +122,10 @@ def train():
                 "model_state": model.state_dict(),
                 "optimizer_state": optimizer.state_dict(),
                 "train_losses": train_losses,
+                "train_accs": train_accs,
                 "val_losses": val_losses,
-                "best_val_loss": best_val_loss,
+                "val_accs": val_accs,
             },
-            is_best=is_best,
             checkpoint_dir=checkpoint_dir
         )
 
@@ -136,10 +135,25 @@ def train():
             f"Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.4f}"
         )
 
-    return model, train_losses, val_losses
+    return model, train_losses, train_accs, val_losses, val_accs
 
 
 if __name__ == "__main__":
-    model, train_losses, val_losses = train()
+    model, train_losses, train_accs, val_losses, val_accs = train()
     device = get_device()
-    plot_losses(train_losses, val_losses)
+    plot_losses(
+        train_losses,
+        val_losses,
+        "Training and Validation Loss",
+        "Train Loss",
+        "Validation Loss",
+        save_path="loss_curve.png"
+    )
+    plot_losses(
+        train_accs,
+        val_accs,
+        "Training and Validation Accuracy",
+        "Train Accuracy",
+        "Validation Accuracy",
+        save_path="accuracy_curve.png"
+    )

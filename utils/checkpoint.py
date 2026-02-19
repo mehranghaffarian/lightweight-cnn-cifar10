@@ -2,7 +2,7 @@ import torch
 import os
 import re
 
-def save_checkpoint(state, is_best, checkpoint_dir="checkpoints"):
+def save_checkpoint(state, checkpoint_dir="checkpoints"):
     os.makedirs(checkpoint_dir, exist_ok=True)
 
     # Save epoch checkpoint
@@ -36,7 +36,8 @@ def load_checkpoint(model, optimizer, checkpoint_path, device):
 
     start_epoch = checkpoint["epoch"] + 1
     train_losses = checkpoint["train_losses"]
+    train_accs = checkpoint["train_accs"]
     val_losses = checkpoint["val_losses"]
-    best_val_loss = checkpoint["best_val_loss"]
+    val_accs = checkpoint["val_accs"]
 
-    return start_epoch, train_losses, val_losses, best_val_loss
+    return start_epoch, train_losses, train_accs, val_losses, val_accs

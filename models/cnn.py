@@ -4,6 +4,19 @@ import torch.nn.functional as F
 
 
 class ResidualBlock(nn.Module):
+    """
+    A single residual block with optional downsampling and dropout.
+
+    Args:
+        in_channels (int): Number of input channels.
+        out_channels (int): Number of output channels.
+        stride (int, optional): Stride of the first convolution. Default: 1.
+        dropout (float, optional): Dropout probability after first conv. Default: 0.0.
+
+    Notes:
+        - If stride != 1 or in_channels != out_channels, a 1x1 convolution
+          is applied in the shortcut to match dimensions.
+    """
     def __init__(self, in_channels, out_channels, stride=1, dropout=0.0):
         super().__init__()
 
@@ -43,6 +56,16 @@ class ResidualBlock(nn.Module):
             )
 
     def forward(self, x):
+        """
+        Forward pass through the residual block.
+
+        Args:
+            x (torch.Tensor): Input feature map of shape (B, C, H, W)
+
+        Returns:
+            torch.Tensor: Output feature map of same or downsampled spatial size
+                          depending on stride.
+        """
         out = F.relu(self.bn1(self.conv1(x)))
         out = self.dropout(out)
         out = self.bn2(self.conv2(out))
@@ -53,6 +76,19 @@ class ResidualBlock(nn.Module):
 
 
 class SmallResNet(nn.Module):
+    """
+    A small ResNet-inspired CNN for CIFAR-10 classification (<400k parameters).
+
+    Architecture:
+        - Stem: Conv3x3 -> BN -> ReLU
+        - Layer1: 2 x ResidualBlock(32,32)
+        - Layer2: ResidualBlock(32,64,stride=2,dropout=0.2) + ResidualBlock(64,64)
+        - Layer3: ResidualBlock(64,112,stride=2,dropout=0.3)
+        - AdaptiveAvgPool -> Flatten -> Fully-connected layer
+
+    Args:
+        num_classes (int): Number of output classes (default=10 for CIFAR-10)
+    """
     def __init__(self, num_classes=10):
         super().__init__()
 
@@ -80,6 +116,15 @@ class SmallResNet(nn.Module):
         self.fc = nn.Linear(112, num_classes)
 
     def forward(self, x):
+        """
+        Forward pass through the network.
+
+        Args:
+            x (torch.Tensor): Input image batch, shape (B, 3, 32, 32)
+
+        Returns:
+            torch.Tensor: Logits of shape (B, num_classes)
+        """
         x = self.stem(x)
         x = self.layer1(x)
         x = self.layer2(x)
@@ -90,10 +135,6 @@ class SmallResNet(nn.Module):
         return x
 
 
-def count_parameters(model):
-    return sum(p.numel() for p in model.parameters() if p.requires_grad)
-
-
 if __name__ == "__main__":
     model = SmallResNet()
-    print(f"Trainable parameters: {count_parameters(model):,}")
+    print(f"Trainable parameters: {sum(p.numel() for p in model.parameters())}")
