@@ -1,7 +1,6 @@
 data/
 models/__pycache__/
 __pycache__
-
 checkpoints/
-
+venv/
 test-gpu.py

@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import os
 import logging
 
 from models.cnn import SmallResNet
@@ -9,6 +8,7 @@ from dataset import *
 from utils.checkpoint import save_checkpoint, load_checkpoint, get_latest_checkpoint
 from utils.plot_loss_epoch import plot_losses
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def get_device():
@@ -97,7 +97,7 @@ def train():
         )
         
     num_epochs=100
-    logger.info("start epoch: ", start_epoch)
+    logger.info(f"start epoch: {start_epoch}")
 
     for epoch in range(start_epoch, num_epochs):
         train_loss, train_acc = train_one_epoch(
