@@ -3,6 +3,13 @@ import os
 import re
 
 def save_checkpoint(state, checkpoint_dir="checkpoints"):
+    """
+    Save a training checkpoint for the current epoch.
+
+    Args:
+        state (dict): Training state containing model/optimizer states and epoch.
+        checkpoint_dir (str): Directory where checkpoints are stored.
+    """
     os.makedirs(checkpoint_dir, exist_ok=True)
 
     # Save epoch checkpoint
@@ -11,6 +18,15 @@ def save_checkpoint(state, checkpoint_dir="checkpoints"):
     torch.save(state, epoch_path)
 
 def get_latest_checkpoint(checkpoint_dir):
+    """
+    Find the most recent checkpoint file based on epoch number.
+
+    Args:
+        checkpoint_dir (str): Directory containing checkpoint files.
+
+    Returns:
+        str or None: Path to the latest checkpoint, or None if none exist.
+    """
     if not os.path.exists(checkpoint_dir):
         return None
 
@@ -29,6 +45,18 @@ def get_latest_checkpoint(checkpoint_dir):
     return latest_path
 
 def load_checkpoint(model, optimizer, checkpoint_path, device):
+    """
+    Load model and optimizer states from a checkpoint and resume training.
+
+    Args:
+        model (torch.nn.Module): Model to restore.
+        optimizer (torch.optim.Optimizer): Optimizer to restore.
+        checkpoint_path (str): Path to the checkpoint file.
+        device (torch.device): Device for loading the checkpoint.
+
+    Returns:
+        tuple: Next epoch index and stored training/validation metrics.
+    """
     checkpoint = torch.load(checkpoint_path, map_location=device)
 
     model.load_state_dict(checkpoint["model_state"])

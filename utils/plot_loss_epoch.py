@@ -2,6 +2,17 @@ import torch
 import matplotlib.pyplot as plt
 
 def plot_losses(x, y, title, x_label, y_label, save_path="./"):
+    """
+    Plot and save training and validation curves across epochs.
+
+    Args:
+        x (list or sequence): Metric values for training (e.g., loss or accuracy).
+        y (list or sequence): Metric values for validation.
+        title (str): Title of the plot.
+        x_label (str): Label for the training curve in the legend.
+        y_label (str): Label for the validation curve in the legend.
+        save_path (str): Path to save the generated figure.
+    """
     epochs = range(1, len(x) + 1)
 
     plt.figure(figsize=(8, 5))

@@ -1,8 +1,9 @@
 import torch
-from models.cnn import SmallResNet
-from dataset import *
 import matplotlib.pyplot as plt
 import logging
+
+from models.cnn import SmallResNet
+from dataset import *
 
 def accuracy(outputs, targets):
     _, preds = torch.max(outputs, dim=1)
@@ -10,6 +11,17 @@ def accuracy(outputs, targets):
     return correct / targets.size(0)
 
 def test(model, loader, device):
+    """
+    Evaluate the trained model on the test dataset.
+
+    Runs inference in evaluation mode without gradient computation and
+    reports the average classification accuracy over all test batches.
+
+    Args:
+        model (nn.Module): Trained model to be evaluated.
+        loader (DataLoader): Test data loader.
+        device (torch.device): Device used for inference.
+    """
     model.eval()
 
     total_acc = 0.0
@@ -26,6 +38,19 @@ def test(model, loader, device):
 
 
 def show_predictions(model, test_loader, device, num_images=8):
+    """
+    Visualize model predictions on a batch of test images.
+
+    Displays a fixed number of images along with their true and predicted
+    class labels. Correct predictions are shown in green and incorrect
+    ones in red.
+
+    Args:
+        model (nn.Module): Trained classification model.
+        test_loader (DataLoader): DataLoader for the test dataset.
+        device (torch.device): Device used for inference.
+        num_images (int): Number of images to display.
+    """
     classes = (
         "airplane", "automobile", "bird", "cat", "deer",
         "dog", "frog", "horse", "ship", "truck"
@@ -45,7 +70,7 @@ def show_predictions(model, test_loader, device, num_images=8):
     labels = labels.cpu()
     preds = preds.cpu()
 
-    fig, axes = plt.subplots(1, num_images, figsize=(15, 3))
+    _, axes = plt.subplots(1, num_images, figsize=(15, 3))
 
     for i in range(num_images):
         img = images[i]

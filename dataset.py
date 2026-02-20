@@ -3,6 +3,12 @@ from torch.utils.data import DataLoader, Subset
 from torchvision import datasets, transforms
 
 def get_train_transforms():
+    """
+    Define data augmentations and normalization used during training.
+
+    Returns:
+        torchvision.transforms.Compose: Training data transformations.
+    """
     train_transform = transforms.Compose([
         transforms.RandomCrop(32, padding=4),
         transforms.RandomHorizontalFlip(),
@@ -16,6 +22,12 @@ def get_train_transforms():
     return train_transform
 
 def get_test_transform():    
+    """
+    Define normalization applied to validation and test data.
+
+    Returns:
+        torchvision.transforms.Compose: Evaluation data transformations.
+    """
     return transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize(
@@ -26,6 +38,15 @@ def get_test_transform():
 
 
 def get_train_dataset(data_dir="./data"):
+    """
+    Load the CIFAR-10 training dataset with training-time augmentations.
+
+    Args:
+        data_dir (str): Directory to store or load the dataset.
+
+    Returns:
+        torchvision.datasets.CIFAR10: Full training dataset.
+    """
     train_transform = get_train_transforms()
 
     full_train_dataset = datasets.CIFAR10(
@@ -38,6 +59,15 @@ def get_train_dataset(data_dir="./data"):
     return full_train_dataset
 
 def get_test_dataset(data_dir="./data"):
+    """
+    Load the CIFAR-10 test dataset with evaluation preprocessing.
+
+    Args:
+        data_dir (str): Directory to store or load the dataset.
+
+    Returns:
+        torchvision.datasets.CIFAR10: Test dataset.
+    """
     test_transform = get_test_transform()
     
     return datasets.CIFAR10(
@@ -49,6 +79,15 @@ def get_test_dataset(data_dir="./data"):
 
 
 def split_train_validation(full_train_dataset):
+    """
+    Split the training dataset into training and validation subsets.
+
+    Args:
+        full_train_dataset (Dataset): Full CIFAR-10 training dataset.
+
+    Returns:
+        tuple: Training and validation datasets.
+    """
     num_total = len(full_train_dataset)
     num_val = 5000
     num_train = num_total - num_val
@@ -71,6 +110,16 @@ def split_train_validation(full_train_dataset):
 
 
 def get_train_dataloaders(batch_size=128, num_workers=2):
+    """
+    Create DataLoaders for training and validation.
+
+    Args:
+        batch_size (int): Number of samples per batch.
+        num_workers (int): Number of subprocesses for data loading.
+
+    Returns:
+        tuple: Training and validation DataLoaders.
+    """
     full_train_dataset = get_train_dataset()
     train_dataset, val_dataset = split_train_validation(full_train_dataset)
 
@@ -93,6 +142,16 @@ def get_train_dataloaders(batch_size=128, num_workers=2):
     return train_loader, val_loader
 
 def get_test_dataloader(batch_size=128, num_workers=2):
+    """
+    Create a DataLoader for the test dataset.
+
+    Args:
+        batch_size (int): Number of samples per batch.
+        num_workers (int): Number of subprocesses for data loading.
+
+    Returns:
+        DataLoader: Test DataLoader.
+    """
     test_dataset = get_test_dataset()
     
     return DataLoader(
