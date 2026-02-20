@@ -20,6 +20,22 @@ def accuracy(outputs, targets):
     return correct / targets.size(0)
 
 def train_one_epoch(model, loader, criterion, optimizer, device):
+    """
+    Train the model for a single epoch.
+
+    Performs forward pass, loss computation, backpropagation,
+    and parameter updates over the entire training dataset.
+
+    Args:
+        model (nn.Module): Neural network model.
+        loader (DataLoader): Training data loader.
+        criterion (nn.Module): Loss function.
+        optimizer (torch.optim.Optimizer): Optimizer instance.
+        device (torch.device): Training device.
+
+    Returns:
+        tuple: Average training loss and accuracy for the epoch.
+    """
     model.train()
 
     total_loss = 0.0
@@ -43,6 +59,21 @@ def train_one_epoch(model, loader, criterion, optimizer, device):
     return total_loss / len(loader), total_acc / len(loader)
 
 def validate(model, loader, criterion, device):
+    """
+    Evaluate the model on the validation set.
+
+    Runs inference without gradient computation to measure
+    generalization performance.
+
+    Args:
+        model (nn.Module): Neural network model.
+        loader (DataLoader): Validation data loader.
+        criterion (nn.Module): Loss function.
+        device (torch.device): Evaluation device.
+
+    Returns:
+        tuple: Average validation loss and accuracy.
+    """
     model.eval()
 
     total_loss = 0.0
@@ -62,6 +93,23 @@ def validate(model, loader, criterion, device):
     return total_loss / len(loader), total_acc / len(loader)
 
 def train():
+    """
+    Full training pipeline for CIFAR-10 classification.
+
+    - Initializes model, optimizer, scheduler, and loss
+    - Loads latest checkpoint if available
+    - Trains for a fixed number of epochs
+    - Saves model checkpoints after each epoch
+    - Tracks training and validation loss/accuracy
+
+    Returns:
+        tuple:
+            - model (nn.Module): Trained model
+            - train_losses (list): Training loss per epochs
+            - train_accs (list): Training accuracy per epochs
+            - val_losses (list): Validation loss per epochs
+            - val_accs (list): Validation accuracy per epochs
+    """
     device = get_device()
     
     train_loader, val_loader = get_train_dataloaders(batch_size=128)
