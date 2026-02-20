@@ -43,6 +43,8 @@ project/
 │
 ├── loss_curve.png                # Loss & accuracy plots
 │
+├── requirements.txt              # required libs
+│
 └── README.md                     # Project documentation
 ```
 
